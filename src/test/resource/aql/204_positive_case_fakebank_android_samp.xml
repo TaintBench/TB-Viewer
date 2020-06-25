@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<answer>
+    <flows>
+        <flow>
+            <reference type="from">
+                <statement>
+                    <statementfull>$r3 = virtualinvoke $r0.&lt;com.example.bankmanager.BankNumActivity: android.view.View findViewById(int)&gt;(2131230739)</statementfull>
+                    <statementgeneric>com.example.bankmanager.BankNumActivity: android.view.View findViewById(int)</statementgeneric>
+                    <parameters>
+                        <parameter>
+                            <type>int</type>
+                            <value>2131230739</value>
+                        </parameter>
+                    </parameters>
+                </statement>
+                <method>&lt;com.example.bankmanager.BankNumActivity: void onCreate(android.os.Bundle)&gt;</method>
+                <classname>com.example.bankmanager.BankNumActivity</classname>
+                <app>
+                    <file>D:\research\TaintBench\TaintBench\apps\android\fakebank_android_samp\fakebank_android_samp.apk</file>
+                    <hashes>
+                        <hash type="MD5">650795a6c3301cd7ff355fa4f7eede8b</hash>
+                        <hash type="SHA-1">e15e540698d6153f65198b264d9ca8e1e6e6dde7</hash>
+                        <hash type="SHA-256">191108379dccd5dc1b21c5f71f4eb5d47603fc4950255f32b1228d4b066ea512</hash>
+                    </hashes>
+                </app>
+            </reference>
+            <reference type="to">
+                <statement>
+                    <statementfull>virtualinvoke $r3.&lt;com.example.bankmanager.BankNumActivity: void startActivity(android.content.Intent)&gt;($r2)</statementfull>
+                    <statementgeneric>com.example.bankmanager.BankNumActivity: void startActivity(android.content.Intent)</statementgeneric>
+                    <parameters>
+                        <parameter>
+                            <type>android.content.Intent</type>
+                            <value>$r2</value>
+                        </parameter>
+                    </parameters>
+                </statement>
+                <method>&lt;com.example.bankmanager.BankNumActivity$1: void onClick(android.view.View)&gt;</method>
+                <classname>com.example.bankmanager.BankNumActivity$1</classname>
+                <app>
+                    <file>D:\research\TaintBench\TaintBench\apps\android\fakebank_android_samp\fakebank_android_samp.apk</file>
+                    <hashes>
+                        <hash type="MD5">650795a6c3301cd7ff355fa4f7eede8b</hash>
+                        <hash type="SHA-1">e15e540698d6153f65198b264d9ca8e1e6e6dde7</hash>
+                        <hash type="SHA-256">191108379dccd5dc1b21c5f71f4eb5d47603fc4950255f32b1228d4b066ea512</hash>
+                    </hashes>
+                </app>
+            </reference>
+        </flow>
+    </flows>
+</answer>

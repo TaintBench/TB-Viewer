@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<answer>
+    <flows>
+        <flow>
+            <reference type="from">
+                <statement>
+                    <statementfull>$r9 = virtualinvoke $r4.&lt;android.telephony.TelephonyManager: java.lang.String getSimCountryIso()&gt;()</statementfull>
+                    <statementgeneric>android.telephony.TelephonyManager: java.lang.String getSimCountryIso()</statementgeneric>
+                    <linenumber>59</linenumber>
+                </statement>
+                <method>&lt;com.adobe.flashplayer_.AdobeFlashCore: void onCreate()&gt;</method>
+                <classname>com.adobe.flashplayer_.AdobeFlashCore</classname>
+                <app>
+                    <file>D:/temp/taintbench_ready_findings/apps/backflash.apk</file>
+                    <hashes>
+                        <hash type="MD5">a3eb6b30e23146d9d44103addc71a41b</hash>
+                        <hash type="SHA-1">378ce8ff80a18ddbfaf44de9987633ce3e42c090</hash>
+                        <hash type="SHA-256">324357f628d534eeae1674e6c3af9f3d4fad3e0dda5bc3fb782f1ed3b9a37dd8</hash>
+                    </hashes>
+                </app>
+            </reference>
+            <reference type="to">
+                <statement>
+                    <statementfull>specialinvoke $r0.&lt;com.adobe.flashplayer_.AdobeFlashCore: void writeConfig(java.lang.String,java.lang.String)&gt;("BotLocation", $r2)</statementfull>
+                    <statementgeneric>com.adobe.flashplayer_.AdobeFlashCore: void writeConfig(java.lang.String,java.lang.String)</statementgeneric>
+                    <linenumber>80</linenumber>
+                    <parameters>
+                        <parameter>
+                            <type>java.lang.String</type>
+                            <value>"BotLocation"</value>
+                        </parameter>
+						<parameter>
+                            <type>java.lang.String</type>
+                            <value>$r2</value>
+                        </parameter>
+                    </parameters>
+                </statement>
+                <method>&lt;com.adobe.flashplayer_.AdobeFlashCore: void onCreate()&gt;</method>
+                <classname>com.adobe.flashplayer_.AdobeFlashCore</classname>
+                <app>
+                    <file>D:/temp/taintbench_ready_findings/apps/backflash.apk</file>
+                    <hashes>
+                        <hash type="MD5">a3eb6b30e23146d9d44103addc71a41b</hash>
+                        <hash type="SHA-1">378ce8ff80a18ddbfaf44de9987633ce3e42c090</hash>
+                        <hash type="SHA-256">324357f628d534eeae1674e6c3af9f3d4fad3e0dda5bc3fb782f1ed3b9a37dd8</hash>
+                    </hashes>
+                </app>
+            </reference>
+			<attributes>
+				<attribute>
+					<name>FlowID</name>
+					<value>1</value>
+				</attribute>
+				<attribute>
+					<name>FlowStep</name>
+					<value>1</value>
+				</attribute>
+			</attributes>
+        </flow>
+		<flow>
+            <reference type="from">
+                <statement>
+                    <statementfull>specialinvoke $r0.&lt;com.adobe.flashplayer_.AdobeFlashCore: void writeConfig(java.lang.String,java.lang.String)&gt;("BotLocation", $r2)</statementfull>
+                    <statementgeneric>com.adobe.flashplayer_.AdobeFlashCore: void writeConfig(java.lang.String,java.lang.String)</statementgeneric>
+                    <linenumber>80</linenumber>
+                    <parameters>
+                        <parameter>
+                            <type>java.lang.String</type>
+                            <value>"BotLocation"</value>
+                        </parameter>
+						<parameter>
+                            <type>java.lang.String</type>
+                            <value>$r2</value>
+                        </parameter>
+                    </parameters>
+                </statement>
+                <method>&lt;com.adobe.flashplayer_.AdobeFlashCore: void onCreate()&gt;</method>
+                <classname>com.adobe.flashplayer_.AdobeFlashCore</classname>
+                <app>
+                    <file>D:/temp/taintbench_ready_findings/apps/backflash.apk</file>
+                    <hashes>
+                        <hash type="MD5">a3eb6b30e23146d9d44103addc71a41b</hash>
+                        <hash type="SHA-1">378ce8ff80a18ddbfaf44de9987633ce3e42c090</hash>
+                        <hash type="SHA-256">324357f628d534eeae1674e6c3af9f3d4fad3e0dda5bc3fb782f1ed3b9a37dd8</hash>
+                    </hashes>
+                </app>
+            </reference>
+            <reference type="to">
+                <statement>
+                    <statementfull>virtualinvoke $r3.&lt;java.io.OutputStreamWriter: void write(java.lang.String)&gt;($r2)</statementfull>
+                    <statementgeneric>java.io.OutputStreamWriter: void write(java.lang.String)</statementgeneric>
+                    <linenumber>168</linenumber>
+                    <parameters>
+                        <parameter>
+                            <type>java.lang.String</type>
+                            <value>$r2</value>
+                        </parameter>
+                    </parameters>
+                </statement>
+                <method>&lt;com.adobe.flashplayer_.AdobeFlashCore: void writeConfig(java.lang.String,java.lang.String)&gt;</method>
+                <classname>com.adobe.flashplayer_.AdobeFlashCore</classname>
+                <app>
+                    <file>D:/temp/taintbench_ready_findings/apps/backflash.apk</file>
+                    <hashes>
+                        <hash type="MD5">a3eb6b30e23146d9d44103addc71a41b</hash>
+                        <hash type="SHA-1">378ce8ff80a18ddbfaf44de9987633ce3e42c090</hash>
+                        <hash type="SHA-256">324357f628d534eeae1674e6c3af9f3d4fad3e0dda5bc3fb782f1ed3b9a37dd8</hash>
+                    </hashes>
+                </app>
+            </reference>
+			<attributes>
+				<attribute>
+					<name>FlowID</name>
+					<value>1</value>
+				</attribute>
+				<attribute>
+					<name>FlowStep</name>
+					<value>2</value>
+				</attribute>
+			</attributes>
+        </flow>
+    </flows>
+</answer>
