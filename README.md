@@ -1,4 +1,4 @@
-The taintviewer reads json file from the findings directory and display the taint flows in the editor.
+The TB-Viewer reads TAF-file (findings) and displays the taint flows in VS  code.
 # How to build it?
 - build jar file with `mvn install -DskipTests`
 - `cd vscode`

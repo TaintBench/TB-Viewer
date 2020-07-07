@@ -1,14 +1,14 @@
 {
 	"name": "TB-Viewer",
 	"description": "A language server for TaintBench",
-	"author": "Linghui Luo",
+	"author": "TaintBench",
 	"license": "EPL-2.0",
 	"version": "0.0.1",
 	"repository": {
 		"type": "git",
 		"url": ""
 	},
-	"publisher": "LinghuiLuo",
+	"publisher": "taintbench",
 	"categories": [],
 	"keywords": [
 		"multi-root ready"
