@@ -13,7 +13,7 @@ export async function activate(context: ExtensionContext) {
 	const lspTransport = workspace.getConfiguration().get("taintbench.lspTransport", "stdio")
 
     let script = 'java';
-    let args = ['-jar',context.asAbsolutePath(path.join('TB-Viewer-0.0.1-SNAPSHOT.jar'))];
+    let args = ['-jar',context.asAbsolutePath(path.join('TB-Viewer-0.0.2-SNAPSHOT.jar'))];
 	
 	const serverOptionsStdio = {
 		run : { command: script, args: args },

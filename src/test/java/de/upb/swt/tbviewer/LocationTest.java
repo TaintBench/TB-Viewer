@@ -1,8 +1,7 @@
-package de.upb.swt.taintviewer;
+package de.upb.swt.tbviewer;
 
 import static org.junit.Assert.assertTrue;
 
-import de.upb.swt.tbviewer.Location;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Test;
