@@ -3,7 +3,9 @@
  */
 package de.upb.swt.tbviewer;
 
+import java.util.function.Supplier;
 import magpiebridge.core.IProjectService;
+import magpiebridge.core.MagpieServer;
 import magpiebridge.core.ServerAnalysis;
 import magpiebridge.core.ServerConfiguration;
 import magpiebridge.core.ToolAnalysis;
@@ -13,17 +15,21 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 /** @author Linghui Luo */
 public class Main {
   public static void main(String... args) {
-    ServerConfiguration config = new ServerConfiguration();
-    config.setDoAnalysisByOpen(false);
-    config.setDoAnalysisBySave(false);
-    TaintLanguageServer server = new TaintLanguageServer(config);
-    String language = "java";
-    IProjectService javaProjectService = new JavaProjectService();
-    server.addProjectService(language, javaProjectService);
-    ServerAnalysis analysis = new TaintServerAnalysis();
-    Either<ServerAnalysis, ToolAnalysis> either = Either.forLeft(analysis);
-    server.addAnalysis(either, language);
-    server.launchOnStdio();
-    // server.launchOnSocket(5007);
+    Supplier<MagpieServer> supplier =
+        () -> {
+          ServerConfiguration config = new ServerConfiguration();
+          config.setDoAnalysisByOpen(false);
+          config.setDoAnalysisBySave(false);
+          TaintLanguageServer server = new TaintLanguageServer(config);
+          String language = "java";
+          IProjectService javaProjectService = new JavaProjectService();
+          server.addProjectService(language, javaProjectService);
+          ServerAnalysis analysis = new TaintServerAnalysis();
+          Either<ServerAnalysis, ToolAnalysis> either = Either.forLeft(analysis);
+          server.addAnalysis(either, language);
+          return server;
+        };
+    supplier.get().launchOnStdio();
+    //MagpieServer.launchOnSocketPort(5007, supplier);
   }
 }

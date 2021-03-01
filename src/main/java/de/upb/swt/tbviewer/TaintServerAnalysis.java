@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import magpiebridge.core.AnalysisConsumer;
 import magpiebridge.core.AnalysisResult;
 import magpiebridge.core.Kind;
 import magpiebridge.core.MagpieServer;
@@ -568,8 +569,10 @@ public class TaintServerAnalysis implements ServerAnalysis {
   }
 
   @Override
-  public void analyze(Collection<? extends Module> files, MagpieServer server, boolean rerun) {
+  public void analyze(
+      Collection<? extends Module> files, AnalysisConsumer consumer, boolean rerun) {
     if (rerun) {
+      MagpieServer server = (MagpieServer) consumer;
       if (this.server == null) this.server = (TaintLanguageServer) server;
       JavaProjectService ps = (JavaProjectService) server.getProjectService("java").get();
       if (ps.getRootPath().isPresent()) {
