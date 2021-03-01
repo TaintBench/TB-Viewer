@@ -48,6 +48,7 @@ import magpiebridge.core.Kind;
 import magpiebridge.core.MagpieServer;
 import magpiebridge.core.ServerAnalysis;
 import magpiebridge.projectservice.java.JavaProjectService;
+import magpiebridge.util.SourceCodeInfo;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.MessageParams;
@@ -171,10 +172,12 @@ public class TaintServerAnalysis implements ServerAnalysis {
               SourceCodePositionFinder.getFromLineNo(
                   sourceUrl, sourceStatement, decompiledSourceLineNo);
           try {
-            sourceStatement =
+            SourceCodeInfo info =
                 magpiebridge.util.SourceCodePositionFinder.findCode(
-                        Paths.get(sourceUrl.toURI()).toFile(), decompiledSourceLineNo)
-                    .code;
+                    Paths.get(sourceUrl.toURI()).toFile(), decompiledSourceLineNo);
+            if (info != null) {
+              sourceStatement = info.code;
+            }
           } catch (URISyntaxException e) {
             e.printStackTrace();
           }
@@ -203,10 +206,12 @@ public class TaintServerAnalysis implements ServerAnalysis {
               SourceCodePositionFinder.getFromLineNo(
                   sinkUrl, sinkStatement, decompiledSourceLineNo);
           try {
-            sinkStatement =
+            SourceCodeInfo info =
                 magpiebridge.util.SourceCodePositionFinder.findCode(
-                        Paths.get(sinkUrl.toURI()).toFile(), decompiledSourceLineNo)
-                    .code;
+                    Paths.get(sinkUrl.toURI()).toFile(), decompiledSourceLineNo);
+            if (info != null) {
+              sinkStatement = info.code;
+            }
           } catch (URISyntaxException e) {
             e.printStackTrace();
           }
@@ -244,10 +249,10 @@ public class TaintServerAnalysis implements ServerAnalysis {
                   SourceCodePositionFinder.getFromLineNo(
                       flowUrl, flowStatement, decompiledSourceLineNo);
               try {
-                flowStatement =
+                SourceCodeInfo info =
                     magpiebridge.util.SourceCodePositionFinder.findCode(
-                            Paths.get(flowUrl.toURI()).toFile(), decompiledSourceLineNo)
-                        .code;
+                        Paths.get(flowUrl.toURI()).toFile(), decompiledSourceLineNo);
+                if (info != null) flowStatement = info.code;
               } catch (URISyntaxException e) {
                 e.printStackTrace();
               }

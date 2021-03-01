@@ -1,11 +1,11 @@
 package de.upb.swt.tbviewer;
 
+import magpiebridge.core.MagpieClient;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
-import org.eclipse.lsp4j.services.LanguageClient;
 
 /** @author Linghui Luo */
-public interface TaintLanguageClient extends LanguageClient {
+public interface TaintLanguageClient extends MagpieClient {
 
   @JsonNotification("taintbench/groundtruth")
   void publishGroundTruth(PublishDiagnosticsParams diagnostics);

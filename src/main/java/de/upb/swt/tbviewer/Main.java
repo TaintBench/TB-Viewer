@@ -29,7 +29,7 @@ public class Main {
           server.addAnalysis(either, language);
           return server;
         };
-    supplier.get().launchOnStdio();
-    //MagpieServer.launchOnSocketPort(5007, supplier);
+    // supplier.get().launchOnStdio();
+    TaintLanguageServer.launchOnSocketPort(5007, supplier);
   }
 }
