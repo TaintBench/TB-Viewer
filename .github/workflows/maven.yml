@@ -27,4 +27,4 @@ jobs:
           sudo chmod +x install_libs.sh
           ./install_libs.sh
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn -B package --file pom.xml -DskipTests
