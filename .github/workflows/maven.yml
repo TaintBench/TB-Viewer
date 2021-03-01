@@ -6,9 +6,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, develop ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, develop ]
 
 jobs:
   build:
@@ -24,6 +24,7 @@ jobs:
     - name: Install local jars
       run: |
           cd libs
+          sudu chmod +x insall_libs.sh
           ./install_libs.sh
     - name: Build with Maven
       run: mvn -B package --file pom.xml
