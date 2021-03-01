@@ -1,10 +1,8 @@
-package de.upb.swt.taintviewer;
+package de.upb.swt.tbviewer;
 
 import static org.junit.Assert.assertEquals;
 
 import com.ibm.wala.util.collections.Pair;
-import de.upb.swt.tbviewer.SourceCodePosition;
-import de.upb.swt.tbviewer.SourceCodePositionFinder;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;

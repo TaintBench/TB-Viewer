@@ -21,10 +21,15 @@ import de.foellix.aql.datastructure.handler.AnswerHandler;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,6 +41,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import magpiebridge.core.AnalysisResult;
 import magpiebridge.core.Kind;
 import magpiebridge.core.MagpieServer;
@@ -163,6 +169,14 @@ public class TaintServerAnalysis implements ServerAnalysis {
           sourcePos =
               SourceCodePositionFinder.getFromLineNo(
                   sourceUrl, sourceStatement, decompiledSourceLineNo);
+          try {
+            sourceStatement =
+                magpiebridge.util.SourceCodePositionFinder.findCode(
+                        Paths.get(sourceUrl.toURI()).toFile(), decompiledSourceLineNo)
+                    .code;
+          } catch (URISyntaxException e) {
+            e.printStackTrace();
+          }
         } else {
           sourcePos = SourceCodePositionFinder.get(sourceUrl, sourceMethodName, sourceStatement);
         }
@@ -187,6 +201,15 @@ public class TaintServerAnalysis implements ServerAnalysis {
           sinkPos =
               SourceCodePositionFinder.getFromLineNo(
                   sinkUrl, sinkStatement, decompiledSourceLineNo);
+          try {
+            sinkStatement =
+                magpiebridge.util.SourceCodePositionFinder.findCode(
+                        Paths.get(sinkUrl.toURI()).toFile(), decompiledSourceLineNo)
+                    .code;
+          } catch (URISyntaxException e) {
+            e.printStackTrace();
+          }
+
         } else {
           sinkPos = SourceCodePositionFinder.get(sinkUrl, sinkMethodName, sinkStatement);
         }
@@ -219,6 +242,14 @@ public class TaintServerAnalysis implements ServerAnalysis {
               flowPos =
                   SourceCodePositionFinder.getFromLineNo(
                       flowUrl, flowStatement, decompiledSourceLineNo);
+              try {
+                flowStatement =
+                    magpiebridge.util.SourceCodePositionFinder.findCode(
+                            Paths.get(flowUrl.toURI()).toFile(), decompiledSourceLineNo)
+                        .code;
+              } catch (URISyntaxException e) {
+                e.printStackTrace();
+              }
             } else {
               flowPos = SourceCodePositionFinder.get(flowUrl, flowMethodName, flowStatement);
             }
@@ -446,6 +477,7 @@ public class TaintServerAnalysis implements ServerAnalysis {
       url.append("main");
       url.append(File.separator);
       url.append("java");
+      if (!new File(url.toString()).exists()) return searchFile(rootPath, className);
       url.append(File.separator);
       url.append(className.replace(".", File.separator));
       url.append(".java");
@@ -463,6 +495,28 @@ public class TaintServerAnalysis implements ServerAnalysis {
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  protected URL searchFile(String folder, String className) {
+    String path = className.replace(".", File.separator) + ".java";
+    List<URL> ret = new ArrayList<>();
+    try (Stream<Path> walkStream = Files.walk(Paths.get(folder))) {
+      walkStream
+          .filter(p -> p.toFile().isFile())
+          .forEach(
+              f -> {
+                if (f.toString().endsWith(path))
+                  try {
+                    ret.add(new URL("file://" + f));
+                  } catch (MalformedURLException e) {
+                    throw new RuntimeException(e);
+                  }
+              });
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    if (ret.isEmpty()) return null;
+    return ret.get(0);
   }
 
   protected String removeAnonymousInnerClass(String className) {
