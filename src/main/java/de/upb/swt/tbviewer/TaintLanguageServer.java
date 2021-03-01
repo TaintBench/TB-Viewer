@@ -3,8 +3,11 @@
  */
 package de.upb.swt.tbviewer;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,7 +16,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import magpiebridge.core.AnalysisResult;
 import magpiebridge.core.MagpieClient;
@@ -151,8 +156,8 @@ public class TaintLanguageServer extends MagpieServer {
 
   @Override
   public void connect(LanguageClient client) {
-    this.client = (MagpieClient) client;
-    this.taintClient = (TaintLanguageClient) this.client;
+    super.connect(client);
+    this.taintClient = (TaintLanguageClient) client;
   }
 
   @Override
@@ -168,5 +173,60 @@ public class TaintLanguageServer extends MagpieServer {
             .create();
     connect(launcher.getRemoteProxy());
     launcher.startListening();
+  }
+
+  /**
+   * Launch on socket port at local host. Will create a new {@link MagpieServer} instance for each
+   * new connecting client using the given supplier. Example:
+   *
+   * <pre>
+   * <code>
+   *  Supplier&#60;MagpieServer&#62; supplier = ()-&#62;{
+   *    MagpieServer server = new MagpieServer(new ServerConfiguration());
+   *    String language = "java";
+   *    IProjectService javaProjectService = new JavaProjectService();
+   *    server.addProjectService(language, javaProjectService);
+   *    return server.
+   *  }
+   * </code>
+   * </pre>
+   *
+   * @param port the port
+   * @param createServer the server supplier
+   */
+  public static void launchOnSocketPort(int port, Supplier<MagpieServer> createServer) {
+    try {
+      if (serverSocket != null) {
+        serverSocket.close();
+      }
+      serverSocket = new ServerSocket(port);
+      while (!serverSocket.isClosed()) {
+        MagpieServer server = createServer.get();
+        Socket connectionSocket = serverSocket.accept();
+        Launcher<MagpieClient> launcher =
+            new Builder<MagpieClient>()
+                .setLocalService(server)
+                .setRemoteInterface(TaintLanguageClient.class)
+                .setInput(connectionSocket.getInputStream())
+                .setOutput(connectionSocket.getOutputStream())
+                .setExecutorService(THREAD_POOL)
+                .create();
+        server.connect(launcher.getRemoteProxy());
+        new Thread(
+                () -> {
+                  try {
+                    // wait for future to return, signaling connection was closed
+                    launcher.startListening().get();
+                  } catch (InterruptedException | ExecutionException e) {
+                    MagpieServer.ExceptionLogger.log(e);
+                    e.printStackTrace();
+                  }
+                },
+                connectionSocket.getRemoteSocketAddress() + " connected")
+            .start();
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }
