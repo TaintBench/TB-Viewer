@@ -3,10 +3,8 @@
  */
 package de.upb.swt.tbviewer;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ServerSocket;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import magpiebridge.core.AnalysisResult;
+import magpiebridge.core.MagpieClient;
 import magpiebridge.core.MagpieServer;
 import magpiebridge.core.ServerConfiguration;
 import org.eclipse.lsp4j.Diagnostic;
@@ -152,7 +151,7 @@ public class TaintLanguageServer extends MagpieServer {
 
   @Override
   public void connect(LanguageClient client) {
-    this.client = client;
+    this.client = (MagpieClient) client;
     this.taintClient = (TaintLanguageClient) this.client;
   }
 
@@ -169,26 +168,5 @@ public class TaintLanguageServer extends MagpieServer {
             .create();
     connect(launcher.getRemoteProxy());
     launcher.startListening();
-  }
-
-  @SuppressWarnings("resource")
-  public void launchOnSocket(int port) {
-    try {
-      ServerSocket serverSocket = new ServerSocket(port);
-      connectionSocket = serverSocket.accept();
-      Launcher<TaintLanguageClient> launcher =
-          new Builder<TaintLanguageClient>()
-              .setLocalService(this)
-              .setRemoteInterface(TaintLanguageClient.class)
-              .setInput(connectionSocket.getInputStream())
-              .setOutput(connectionSocket.getOutputStream())
-              .setExecutorService(Executors.newCachedThreadPool())
-              .wrapMessages(this.logger.getWrapper())
-              .create();
-      connect(launcher.getRemoteProxy());
-      launcher.startListening();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
   }
 }
