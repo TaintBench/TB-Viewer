@@ -10,6 +10,8 @@ import de.foellix.aql.datastructure.handler.AnswerHandler;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLStreamException;
 
 /** @author Linghui Luo */
 public class InputValidation {
@@ -67,5 +69,14 @@ public class InputValidation {
     Answer answer = AnswerHandler.parseXML(file);
     if (answer == null) return false;
     return true;
+  }
+
+  public static boolean isFlowDroidFormat(File file) {
+    try {
+      return FlowDroidResultParser.hasFormat(file.getAbsolutePath());
+    } catch (FileNotFoundException | XMLStreamException | FactoryConfigurationError e) {
+      e.printStackTrace();
+      return false;
+    }
   }
 }

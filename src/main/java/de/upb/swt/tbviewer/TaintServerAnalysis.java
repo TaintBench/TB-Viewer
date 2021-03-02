@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import javax.xml.stream.XMLStreamException;
 import magpiebridge.core.AnalysisConsumer;
 import magpiebridge.core.AnalysisResult;
 import magpiebridge.core.Kind;
@@ -62,6 +63,7 @@ public class TaintServerAnalysis implements ServerAnalysis {
   private String
       aqlResultPath; // Path to XML-file in AQLResult-format defines the taint analysis analysis
   // results.
+  private String fdResultPath;
 
   private Map<String, TreeMap<Integer, Pair<Reference, Reference>>>
       loadedAqlResults; // <id ,TreeMap<Step, Flow>>
@@ -560,15 +562,27 @@ public class TaintServerAnalysis implements ServerAnalysis {
             continue;
           } else groundTruthPath = rootFile.getAbsolutePath() + File.separator + f.getName();
         }
-        if (f.getName().endsWith(".xml") && InputValidation.isAQLformat(f))
-          if (aqlResultPath != null) {
-            Logger.log(
-                TaintAnalysisResult.class.getName(),
-                "There are multiple XML files with AQLResult-format in "
-                    + rootPath
-                    + ". Please only keep one.");
-            continue;
-          } else aqlResultPath = rootFile.getAbsolutePath() + File.separator + f.getName();
+        if (f.getName().endsWith(".xml"))
+          if (InputValidation.isAQLformat(f)) {
+            if (aqlResultPath != null) {
+              Logger.log(
+                  TaintAnalysisResult.class.getName(),
+                  "There are multiple XML files with AQLResult-format in "
+                      + rootPath
+                      + ". Please only keep one.");
+              continue;
+            } else aqlResultPath = rootFile.getAbsolutePath() + File.separator + f.getName();
+          } else if (InputValidation.isFlowDroidFormat(f)) {
+            if (fdResultPath != null) {
+              Logger.log(
+                  TaintAnalysisResult.class.getName(),
+                  "There are multiple XML files with FlowDroid-Result-format in "
+                      + rootPath
+                      + ". Please only keep one.");
+            } else {
+              fdResultPath = rootFile.getAbsolutePath() + File.separator + f.getName();
+            }
+          }
       }
     }
   }
@@ -598,6 +612,19 @@ public class TaintServerAnalysis implements ServerAnalysis {
             loadAqlResults();
             readAqlResults();
           }
+
+          if (fdResultPath != null) {
+            try {
+              this.loadedAqlResults =
+                  FlowDroidResultParser.convertToAQL(
+                      FlowDroidResultParser.readResultsWithPath(fdResultPath));
+            } catch (XMLStreamException | IOException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+            }
+            readAqlResults();
+          }
+
           Collection<AnalysisResult> allResults = new ArrayList<>();
           allResults.addAll(groundTruth);
           allResults.addAll(aqlResults);

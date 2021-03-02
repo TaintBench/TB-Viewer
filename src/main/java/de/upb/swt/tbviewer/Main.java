@@ -20,6 +20,7 @@ public class Main {
           ServerConfiguration config = new ServerConfiguration();
           config.setDoAnalysisByOpen(false);
           config.setDoAnalysisBySave(false);
+          config.setDoAnalysisByFirstOpen(false);
           TaintLanguageServer server = new TaintLanguageServer(config);
           String language = "java";
           IProjectService javaProjectService = new JavaProjectService();

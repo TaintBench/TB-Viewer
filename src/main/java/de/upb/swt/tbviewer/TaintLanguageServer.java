@@ -27,8 +27,6 @@ import magpiebridge.core.ServerConfiguration;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.InitializedParams;
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.launch.LSPLauncher.Builder;
@@ -53,8 +51,6 @@ public class TaintLanguageServer extends MagpieServer {
         this.getProjectService("java").get().setRootPath(this.rootPath.get());
       }
     }
-    this.client.showMessage(
-        new MessageParams(MessageType.Info, "The analyzer started analyzing the code."));
     doAnalysis("java", true);
   }
 

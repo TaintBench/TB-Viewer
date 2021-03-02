@@ -7,6 +7,19 @@ public class TaintFlow {
 
   private Location source;
   private Location sink;
+
+  public Location getSource() {
+    return source;
+  }
+
+  public Location getSink() {
+    return sink;
+  }
+
+  public ArrayList<Location> getIntermediate() {
+    return intermediate;
+  }
+
   private ArrayList<Location> intermediate;
 
   public TaintFlow(Location source, Location sink, ArrayList<Location> intermediate) {

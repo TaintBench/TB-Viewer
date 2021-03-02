@@ -149,6 +149,15 @@ public class Location {
     this.linenumber = linenumber;
   }
 
+  public Location(String method, String statement, int linenumber) {
+    this.kind = LocationKind.Jimple;
+    this.statement = statement;
+    String[] splits = method.split(":");
+    this.classSignature = splits[0].replace("<", "").trim();
+    this.methodSignature = splits[1].replace(">", "").trim();
+    this.linenumber = linenumber;
+  }
+
   public static boolean maybeEqual(Location a, Location b, boolean compareStatements) {
     if (a.kind == b.kind) {
       return a.classSignature.equals(b.classSignature)
