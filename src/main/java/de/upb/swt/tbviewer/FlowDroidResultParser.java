@@ -49,6 +49,7 @@ public class FlowDroidResultParser {
     public static final String terminationState = "TerminationState";
     public static final String statement = "Statement";
     public static final String method = "Method";
+    public static final String linenumber = "LineNumber";
 
     public static final String value = "Value";
     public static final String type = "Type";
@@ -57,6 +58,7 @@ public class FlowDroidResultParser {
     public static final String category = "Category";
 
     public static final String name = "Name";
+    public static final String id = "ID";
   }
 
   public static boolean hasFormat(String fileName)
@@ -86,10 +88,14 @@ public class FlowDroidResultParser {
     ArrayList<Location> pathElements = new ArrayList<>();
     String sinkStatement = null;
     String sinkMethod = null;
+    int sinkLineNo = -1;
     String sourceStatement = null;
     String sourceMethod = null;
+    int sourceLineNo = -1;
     String pathStatement = null;
     String pathMethod = null;
+    int pathLineNo = -1;
+    String ID = "";
     while (reader.hasNext()) {
       reader.next();
       if (reader.hasName()) {
@@ -97,22 +103,41 @@ public class FlowDroidResultParser {
           hasFormat = true;
         } else if (reader.getLocalName().equals(Tags.sink) && reader.isStartElement()) {
           sinkStatement = getAttributeByName(reader, Attributes.statement);
+          String re = getAttributeByName(reader, Attributes.linenumber);
+          if (!re.equals("")) {
+            sinkLineNo = Integer.parseInt(re);
+          } else {
+            sinkLineNo = -1;
+          }
           sinkMethod = getAttributeByName(reader, Attributes.method);
         } else if (reader.getLocalName().equals(Tags.source) && reader.isStartElement()) {
           sourceStatement = getAttributeByName(reader, Attributes.statement);
+          ID = getAttributeByName(reader, Attributes.id);
+          String re = getAttributeByName(reader, Attributes.linenumber);
+          if (!re.equals("")) {
+            sourceLineNo = Integer.parseInt(getAttributeByName(reader, Attributes.linenumber));
+          } else {
+            sourceLineNo = -1;
+          }
           sourceMethod = getAttributeByName(reader, Attributes.method);
         } else if (reader.getLocalName().equals(Tags.pathElement) && reader.isStartElement()) {
           pathStatement = getAttributeByName(reader, Attributes.statement);
+          String re = getAttributeByName(reader, Attributes.linenumber);
+          if (!re.equals("")) {
+            pathLineNo = Integer.parseInt(getAttributeByName(reader, Attributes.linenumber));
+          } else {
+            pathLineNo = -1;
+          }
           pathMethod = getAttributeByName(reader, Attributes.method);
         } else if (reader.isEndElement()) {
           if (reader.getLocalName().equals(Tags.sink)) {
-            sink = new Location(sinkMethod, sinkStatement, -1);
+            sink = new Location(sinkMethod, sinkStatement, sinkLineNo, null);
           } else if (reader.getLocalName().equals(Tags.source)) {
-            source = new Location(sourceMethod, sourceStatement, -1);
+            source = new Location(sourceMethod, sourceStatement, sourceLineNo, ID);
             results.add(new TaintFlow(source, sink, pathElements));
             pathElements = new ArrayList<>();
           } else if (reader.getLocalName().equals(Tags.pathElement)) {
-            Location pathElement = new Location(pathMethod, pathStatement, -1);
+            Location pathElement = new Location(pathMethod, pathStatement, pathLineNo, null);
             pathElements.add(pathElement);
           }
         }
@@ -135,7 +160,12 @@ public class FlowDroidResultParser {
         all.addAll(path);
       }
       all.add(flow.getSink());
-      String id = i + "";
+      String id = null;
+      if (!flow.getSource().getID().isEmpty()) {
+        id = flow.getSource().getID();
+      } else {
+        id = i + "";
+      }
       if (!res.containsKey(id)) res.put(id, new TreeMap<>());
       for (int j = 0; j < all.size() - 1; j++) {
         Location f = all.get(j);
@@ -144,7 +174,7 @@ public class FlowDroidResultParser {
         from.setType("from");
         from.setClassname(f.getClassSignature());
         from.setMethod(f.getMethodSignature());
-        sf.setLinenumber(-1);
+        sf.setLinenumber(f.getLinenumber());
         sf.setStatementfull(f.getStatement());
         String s = f.getStatement();
         if (s.contains("<") && s.contains(">")) {
@@ -155,12 +185,13 @@ public class FlowDroidResultParser {
         from.setStatement(sf);
 
         Location t = all.get(j + 1);
+
         Statement st = new Statement();
         Reference to = new Reference();
         to.setType("to");
         to.setClassname(t.getClassSignature());
         to.setMethod(t.getMethodSignature());
-        st.setLinenumber(-1);
+        st.setLinenumber(t.getLinenumber());
         st.setStatementfull(t.getStatement());
         s = t.getStatement();
         if (s.contains("<") && s.contains(">")) {

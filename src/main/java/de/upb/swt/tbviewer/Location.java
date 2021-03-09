@@ -32,6 +32,7 @@ public class Location {
   private String methodSignature;
   private String statement;
   private int linenumber;
+  private String id;
 
   private static Pattern javaMethodPattern = createJavaMethodPattern();
   private static Pattern jimpleMethodPattern = createJimpleMethodPattern();
@@ -149,13 +150,14 @@ public class Location {
     this.linenumber = linenumber;
   }
 
-  public Location(String method, String statement, int linenumber) {
+  public Location(String method, String statement, int linenumber, String ID) {
     this.kind = LocationKind.Jimple;
     this.statement = statement;
     String[] splits = method.split(":");
     this.classSignature = splits[0].replace("<", "").trim();
     this.methodSignature = method.replace("<", "").replace(">", "");
     this.linenumber = linenumber;
+    this.id = ID;
   }
 
   public static boolean maybeEqual(Location a, Location b, boolean compareStatements) {
@@ -175,9 +177,11 @@ public class Location {
 
         if (aClass.equals(bClass)) {
           if (compareMethod(a.methodSignature, b.methodSignature))
-            if (a.linenumber == b.linenumber && a.linenumber != -1) {
+            // sometimes soot returns wrong line numbers, so we set a threshold to 3
+            if (Math.abs(a.linenumber - b.linenumber) <= 3 && a.linenumber != -1) {
               return true;
             } else {
+              if (a.linenumber != -1 && b.linenumber != -1) return false;
               if (!compareStatements) return true;
               else return compareStatements(a.statement, b.statement);
             }
@@ -187,6 +191,10 @@ public class Location {
       }
     }
     return false;
+  }
+
+  public String getID() {
+    return this.id;
   }
 
   @Override
