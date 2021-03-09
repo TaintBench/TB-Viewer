@@ -153,8 +153,8 @@ public class TaintServerAnalysis implements ServerAnalysis {
         JsonObject finding = findings.get(i).getAsJsonObject();
         boolean isNegativeFlow = finding.get("isNegative").getAsBoolean();
         String ID = finding.get("ID").toString();
-        StringBuilder message = new StringBuilder(ID + ". Malicious taint flow");
-        if (isNegativeFlow) message = new StringBuilder(ID + ". Negative taint flow");
+        StringBuilder message = new StringBuilder(ID + "P. Malicious taint flow");
+        if (isNegativeFlow) message = new StringBuilder(ID + "N. Negative taint flow");
         String description = finding.get("description").getAsString();
         // process source info
         JsonObject source = finding.getAsJsonObject("source");
@@ -303,10 +303,18 @@ public class TaintServerAnalysis implements ServerAnalysis {
           if (!isNegativeFlow) {
             sinkResult =
                 new TaintAnalysisResult(
-                    Kind.Diagnostic, sinkPos, msg, related, DiagnosticSeverity.Error, null, null);
+                    Optional.of(finding),
+                    Kind.Diagnostic,
+                    sinkPos,
+                    msg,
+                    related,
+                    DiagnosticSeverity.Error,
+                    null,
+                    null);
           } else {
             sinkResult =
                 new TaintAnalysisResult(
+                    Optional.of(finding),
                     Kind.Diagnostic,
                     sinkPos,
                     msg,
@@ -372,7 +380,7 @@ public class TaintServerAnalysis implements ServerAnalysis {
     this.nonMatchedResults.clear();
     for (Entry<String, TreeMap<Integer, Pair<Reference, Reference>>> entry :
         this.loadedAqlResults.entrySet()) {
-      String id = entry.getKey();
+      String id = entry.getKey() + "D";
       TreeMap<Integer, Pair<Reference, Reference>> flow = entry.getValue();
       ArrayList<Pair<Position, String>> related = new ArrayList<Pair<Position, String>>();
       // process source info
@@ -419,9 +427,39 @@ public class TaintServerAnalysis implements ServerAnalysis {
         prefix = "(AMBIGUOUS) ";
       }
       sinkMsg = prefix + sinkMsg;
+
       for (Pair<SourceCodePosition, String> sinkInfo : possibleSinkInfos) {
         if (sinkInfo != null) {
           related.add(Pair.make(sinkInfo.fst, "SINK: " + sinkInfo.snd));
+          String matchedFlowID = null;
+          // for (Pair<SourceCodePosition, String> possibleSource : possibleSourceInfos) {
+          // search if there is match in ground truth
+          // Optional<AnalysisResult> res = findFlowMatchUsingSourceCode(possibleSource, sinkInfo);
+
+          // if (res.isPresent()) {
+          // matchedFlowID = res.get().toString(false).split("\\.")[0];
+
+          // }
+          // }
+          // search if there is match in ground truth
+          Map<AnalysisResult, Boolean> res = findFlowMatchUsingJimple(source, sink);
+          if (!res.isEmpty()) {
+            for (Entry<AnalysisResult, Boolean> pair : res.entrySet()) {
+              String certain = "";
+              if (!pair.getValue()) {
+                certain = "?";
+              }
+              if (matchedFlowID == null) {
+                matchedFlowID = certain + pair.getKey().toString(false).split("\\.")[0];
+              } else {
+                matchedFlowID += ", " + certain + pair.getKey().toString(false).split("\\.")[0];
+              }
+            }
+          }
+          if (matchedFlowID != null) {
+            String detectedFlowID = sinkMsg.split("\\.")[0];
+            sinkMsg = sinkMsg.replace(detectedFlowID, detectedFlowID + "[" + matchedFlowID + "]");
+          }
           TaintAnalysisResult aqlresult =
               new TaintAnalysisResult(
                   Kind.Diagnostic,
@@ -432,12 +470,9 @@ public class TaintServerAnalysis implements ServerAnalysis {
                   null,
                   null);
           aqlResults.add(aqlresult);
-          for (Pair<SourceCodePosition, String> possibleSource : possibleSourceInfos) {
-            // search if there is match in ground truth
-            Optional<AnalysisResult> res = findFlowMatch(possibleSource, sinkInfo);
-            if (res.isPresent()) {
+          if (matchedFlowID != null) {
+            if (!(matchedFlowID.contains("N") && matchedFlowID.contains("P")))
               this.matchedResults.add(aqlresult);
-            }
           }
         }
       }
@@ -462,7 +497,7 @@ public class TaintServerAnalysis implements ServerAnalysis {
    * @param aqlflow
    * @return
    */
-  protected Optional<AnalysisResult> findFlowMatch(
+  protected Optional<AnalysisResult> findFlowMatchUsingSourceCode(
       Pair<SourceCodePosition, String> source, Pair<SourceCodePosition, String> sink) {
     for (AnalysisResult groundTruthFlow : this.groundTruthFlows.values()) {
       Position sinkP = groundTruthFlow.position();
@@ -473,6 +508,71 @@ public class TaintServerAnalysis implements ServerAnalysis {
       }
     }
     return Optional.empty();
+  }
+
+  protected Map<AnalysisResult, Boolean> findFlowMatchUsingJimple(
+      Reference source, Reference sink) {
+    Map<AnalysisResult, Boolean> res = new HashMap<>();
+    for (AnalysisResult groundTruthFlow : this.groundTruthFlows.values()) {
+      TaintAnalysisResult flow = (TaintAnalysisResult) groundTruthFlow;
+      if (flow.getFinding().isPresent()) {
+
+        JsonObject finding = flow.getFinding().get();
+        JsonObject jsonsource = finding.getAsJsonObject("source");
+        String sourceClassName = jsonsource.get("className").getAsString();
+        String sourceMethodName = jsonsource.get("methodName").getAsString();
+        String sourceJimpleStatement = null;
+        if (jsonsource.has("IRs") && jsonsource.get("IRs").getAsJsonArray().size() > 0) {
+          JsonObject IR = jsonsource.get("IRs").getAsJsonArray().get(0).getAsJsonObject();
+          if (IR.get("type").getAsString().equals("Jimple")) {
+            sourceJimpleStatement = IR.get("IRstatement").getAsString();
+          }
+        }
+        JsonObject jsonsink = finding.getAsJsonObject("sink");
+        String sinkClassName = jsonsink.get("className").getAsString();
+        String sinkMethodName = jsonsink.get("methodName").getAsString();
+        String sinkJimpleStatement = null;
+        if (jsonsource.has("IRs") && jsonsink.get("IRs").getAsJsonArray().size() > 0) {
+          JsonObject IR = jsonsink.get("IRs").getAsJsonArray().get(0).getAsJsonObject();
+          if (IR.get("type").getAsString().equals("Jimple")) {
+            sinkJimpleStatement = IR.get("IRstatement").getAsString();
+          }
+        }
+        boolean isNegativeFlow = finding.get("isNegative").getAsBoolean();
+        if (sourceJimpleStatement != null && sinkJimpleStatement != null) {
+          Location jsonSource =
+              new Location(LocationKind.Java, sourceClassName, sourceMethodName, null, -1);
+          Location jsonSink =
+              new Location(LocationKind.Java, sinkClassName, sinkMethodName, null, -1);
+          Location xmlSource =
+              new Location(
+                  LocationKind.Jimple, source.getClassname(), source.getMethod(), null, -1);
+          Location xmlSink =
+              new Location(LocationKind.Jimple, sink.getClassname(), sink.getMethod(), null, -1);
+          String xmlSourceStmt = source.getStatement().getStatementfull();
+          String xmlSinkStmt = sink.getStatement().getStatementfull();
+          if (Location.maybeEqual(jsonSource, xmlSource, false)
+              && Location.maybeEqual(jsonSink, xmlSink, false)) {
+            if (sourceJimpleStatement.equals(xmlSourceStmt)
+                && sinkJimpleStatement.equals(xmlSinkStmt)) {
+              res.put(groundTruthFlow, true);
+            } else {
+              if (!isNegativeFlow) {
+                sourceJimpleStatement = sourceJimpleStatement.replaceAll("\\$r[0-9]+", "\\$rX");
+                sinkJimpleStatement = sinkJimpleStatement.replaceAll("\\$r[0-9]+", "\\$rX");
+                xmlSourceStmt = xmlSourceStmt.replaceAll("\\$r[0-9]+", "\\$rX");
+                xmlSinkStmt = xmlSinkStmt.replaceAll("\\$r[0-9]+", "\\$rX");
+                if (sourceJimpleStatement.equals(xmlSourceStmt)
+                    && sinkJimpleStatement.equals(xmlSinkStmt)) {
+                  res.put(groundTruthFlow, false);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return res;
   }
 
   protected URL classNameToURL(String className) {

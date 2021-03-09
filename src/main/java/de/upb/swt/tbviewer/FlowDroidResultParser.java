@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -83,30 +84,37 @@ public class FlowDroidResultParser {
     Location sink = null;
     Location source = null;
     ArrayList<Location> pathElements = new ArrayList<>();
-    String statement = null;
-    String method = null;
+    String sinkStatement = null;
+    String sinkMethod = null;
+    String sourceStatement = null;
+    String sourceMethod = null;
+    String pathStatement = null;
+    String pathMethod = null;
     while (reader.hasNext()) {
       reader.next();
       if (reader.hasName()) {
         if (reader.getLocalName().equals(Tags.root) && reader.isStartElement()) {
           hasFormat = true;
         } else if (reader.getLocalName().equals(Tags.sink) && reader.isStartElement()) {
-          statement = getAttributeByName(reader, Attributes.statement);
-          method = getAttributeByName(reader, Attributes.method);
+          sinkStatement = getAttributeByName(reader, Attributes.statement);
+          sinkMethod = getAttributeByName(reader, Attributes.method);
         } else if (reader.getLocalName().equals(Tags.source) && reader.isStartElement()) {
-          statement = getAttributeByName(reader, Attributes.statement);
-          method = getAttributeByName(reader, Attributes.method);
+          sourceStatement = getAttributeByName(reader, Attributes.statement);
+          sourceMethod = getAttributeByName(reader, Attributes.method);
         } else if (reader.getLocalName().equals(Tags.pathElement) && reader.isStartElement()) {
-          statement = getAttributeByName(reader, Attributes.statement);
-          method = getAttributeByName(reader, Attributes.method);
+          pathStatement = getAttributeByName(reader, Attributes.statement);
+          pathMethod = getAttributeByName(reader, Attributes.method);
         } else if (reader.isEndElement()) {
-          if (reader.getLocalName().equals(Tags.sink)) sink = new Location(method, statement, -1);
-          else if (reader.getLocalName().equals(Tags.source)) {
-            source = new Location(method, statement, -1);
+          if (reader.getLocalName().equals(Tags.sink)) {
+            sink = new Location(sinkMethod, sinkStatement, -1);
+          } else if (reader.getLocalName().equals(Tags.source)) {
+            source = new Location(sourceMethod, sourceStatement, -1);
             results.add(new TaintFlow(source, sink, pathElements));
             pathElements = new ArrayList<>();
-          } else if (reader.getLocalName().equals(Tags.pathElement))
-            pathElements.add(new Location(method, statement, -1));
+          } else if (reader.getLocalName().equals(Tags.pathElement)) {
+            Location pathElement = new Location(pathMethod, pathStatement, -1);
+            pathElements.add(pathElement);
+          }
         }
       }
     }
@@ -121,7 +129,11 @@ public class FlowDroidResultParser {
     for (TaintFlow flow : flows) {
       ArrayList<Location> all = new ArrayList<>();
       all.add(flow.getSource());
-      all.addAll(flow.getIntermediate());
+      ArrayList<Location> inter = flow.getIntermediate();
+      if (inter.size() >= 2) {
+        List<Location> path = inter.subList(1, inter.size() - 1);
+        all.addAll(path);
+      }
       all.add(flow.getSink());
       String id = i + "";
       if (!res.containsKey(id)) res.put(id, new TreeMap<>());

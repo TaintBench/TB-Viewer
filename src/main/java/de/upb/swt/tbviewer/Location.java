@@ -154,7 +154,7 @@ public class Location {
     this.statement = statement;
     String[] splits = method.split(":");
     this.classSignature = splits[0].replace("<", "").trim();
-    this.methodSignature = splits[1].replace(">", "").trim();
+    this.methodSignature = method.replace("<", "").replace(">", "");
     this.linenumber = linenumber;
   }
 
