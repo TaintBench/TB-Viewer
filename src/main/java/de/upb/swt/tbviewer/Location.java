@@ -133,7 +133,7 @@ public class Location {
   }
 
   public static boolean compareStatements(String javaStatement, String jimpleStatement) {
-    return false;
+    return true;
   }
 
   public Location(
@@ -160,7 +160,8 @@ public class Location {
     this.id = ID;
   }
 
-  public static boolean maybeEqual(Location a, Location b, boolean compareStatements) {
+  public static boolean maybeEqual(
+      Location a, Location b, boolean compareStatements, int threshold) {
     if (a.kind == b.kind) {
       return a.classSignature.equals(b.classSignature)
           && a.methodSignature.equals(b.methodSignature)
@@ -177,9 +178,13 @@ public class Location {
 
         if (aClass.equals(bClass)) {
           if (compareMethod(a.methodSignature, b.methodSignature))
-            // sometimes soot returns wrong line numbers, so we set a threshold to 3
-            if (Math.abs(a.linenumber - b.linenumber) <= 3 && a.linenumber != -1) {
-              return true;
+            // sometimes soot returns wrong line numbers, so we set a threshold
+            if (Math.abs(a.linenumber - b.linenumber) < threshold && a.linenumber != -1) {
+              if (!compareStatements) {
+                return true;
+              } else {
+                return compareStatements(a.statement, b.statement);
+              }
             } else {
               if (a.linenumber != -1 && b.linenumber != -1) return false;
               if (!compareStatements) return true;
@@ -187,7 +192,7 @@ public class Location {
             }
         }
       } else if (a.kind.equals(LocationKind.Jimple) && b.kind.equals(LocationKind.Java)) {
-        return maybeEqual(b, a, compareStatements);
+        return maybeEqual(b, a, compareStatements, threshold);
       }
     }
     return false;

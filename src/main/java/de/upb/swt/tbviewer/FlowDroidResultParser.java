@@ -177,10 +177,18 @@ public class FlowDroidResultParser {
         sf.setLinenumber(f.getLinenumber());
         sf.setStatementfull(f.getStatement());
         String s = f.getStatement();
+        if (s.contains("<init>")) {
+          s = s.replace("<init>", "[init]");
+        }
+        if (s.contains("<clinit>")) {
+          s = s.replace("<clinit>", "[clinit]");
+        }
         if (s.contains("<") && s.contains(">")) {
           s = s.substring(s.indexOf("<") + 1);
           s = s.substring(0, s.indexOf(">"));
         }
+        s = s.replace("[init]", "<init>");
+        s = s.replace("[clinit]", "<clinit>");
         sf.setStatementgeneric(s);
         from.setStatement(sf);
 
@@ -194,10 +202,18 @@ public class FlowDroidResultParser {
         st.setLinenumber(t.getLinenumber());
         st.setStatementfull(t.getStatement());
         s = t.getStatement();
+        if (s.contains("<init>")) {
+          s = s.replace("<init>", "[init]");
+        }
+        if (s.contains("<clinit>")) {
+          s = s.replace("<clinit>", "[clinit]");
+        }
         if (s.contains("<") && s.contains(">")) {
           s = s.substring(s.indexOf("<") + 1);
           s = s.substring(0, s.indexOf(">"));
         }
+        s = s.replace("[init]", "<init>");
+        s = s.replace("[clinit]", "<clinit>");
         st.setStatementgeneric(s);
         to.setStatement(st);
         Pair<Reference, Reference> step = Pair.make(from, to);

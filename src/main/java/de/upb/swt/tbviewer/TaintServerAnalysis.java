@@ -364,9 +364,12 @@ public class TaintServerAnalysis implements ServerAnalysis {
     Optional<Pair<SourceCodePosition, String>> op = findLocationMatch(location);
     Set<Pair<SourceCodePosition, String>> possibleCodePositions = new HashSet<>();
     if (op.isPresent()) possibleCodePositions.add(op.get());
-    else
-      possibleCodePositions.addAll(
-          SourceCodePositionFinder.getWithRegex(sourceUrl, hostMethod, stmt, constantParams));
+    else {
+      if (sourceUrl != null) {
+        possibleCodePositions.addAll(
+            SourceCodePositionFinder.getWithRegex(sourceUrl, hostMethod, stmt, constantParams));
+      }
+    }
     return possibleCodePositions;
   }
 
@@ -482,7 +485,7 @@ public class TaintServerAnalysis implements ServerAnalysis {
   /** Find ground truth location which matches the aqlLocation. */
   protected Optional<Pair<SourceCodePosition, String>> findLocationMatch(Location aqlLocation) {
     for (Location loc : this.groundTruthLocations.keySet()) {
-      if (Location.maybeEqual(loc, aqlLocation, true)) {
+      if (Location.maybeEqual(loc, aqlLocation, true, 1)) {
         Pair<SourceCodePosition, String> pos = this.groundTruthLocations.get(loc);
         if (pos.fst != null) return Optional.of(pos);
         else Optional.empty();
@@ -569,8 +572,8 @@ public class TaintServerAnalysis implements ServerAnalysis {
                   sink.getStatement().getLinenumber());
           String xmlSourceStmt = source.getStatement().getStatementfull();
           String xmlSinkStmt = sink.getStatement().getStatementfull();
-          if (Location.maybeEqual(jsonSource, xmlSource, false)
-              && Location.maybeEqual(jsonSink, xmlSink, false)) {
+          if (Location.maybeEqual(jsonSource, xmlSource, false, 3)
+              && Location.maybeEqual(jsonSink, xmlSink, false, 3)) {
             if (source.getStatement().getLinenumber() != -1
                 && sink.getStatement().getLinenumber() != -1) {
               // also compared line numbers in maybeEqual,
@@ -620,8 +623,11 @@ public class TaintServerAnalysis implements ServerAnalysis {
       url.append(File.separator);
       url.append("java");
       if (!new File(url.toString()).exists()) return searchFile(rootPath, className);
-      url.append(File.separator);
-      url.append(className.replace(".", File.separator));
+      String[] strs = className.split("\\.");
+      for (int i = 0; i < strs.length; i++) {
+        url.append(File.separator);
+        url.append(strs[i]);
+      }
       url.append(".java");
       File file = new File(url.toString());
       if (file.exists()) {
@@ -631,6 +637,7 @@ public class TaintServerAnalysis implements ServerAnalysis {
           return new URL("file://" + url.toString().split("\\$")[0] + ".java");
         } else {
           String enclosingClassName = removeAnonymousInnerClass(className);
+          if (enclosingClassName == null) return null;
           return classNameToURL(enclosingClassName);
         }
       }
@@ -672,7 +679,8 @@ public class TaintServerAnalysis implements ServerAnalysis {
       }
     }
     String fileName = str.toString();
-    fileName = fileName.substring(0, fileName.length() - 1);
+    if (fileName.length() > 1) fileName = fileName.substring(0, fileName.length() - 1);
+    else return null;
     return fileName;
   }
 

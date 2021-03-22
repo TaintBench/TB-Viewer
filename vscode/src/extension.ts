@@ -8,12 +8,10 @@ import { LanguageClient, LanguageClientOptions, ServerOptions, StreamInfo, Publi
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export async function activate(context: ExtensionContext) {
-	// Startup options for the language server
-	const lspTransport = workspace.getConfiguration().get("taintbench.lspTransport", "socket")
-	//const lspTransport = workspace.getConfiguration().get("taintbench.lspTransport", "stdio")
+	const lspTransport = workspace.getConfiguration("taintbench").get("lspTransport");
 
 	let script = 'java';
-	let args = ['-jar', context.asAbsolutePath(path.join('TB-Viewer-0.0.2-SNAPSHOT.jar'))];
+	let args = ['-jar', context.asAbsolutePath(path.join('TB-Viewer-0.0.3-SNAPSHOT.jar'))];
 
 	const serverOptionsStdio = {
 		run: { command: script, args: args },
@@ -36,9 +34,7 @@ export async function activate(context: ExtensionContext) {
 	}
 
 	const serverOptions: ServerOptions =
-		//(lspTransport === "stdio") ? serverOptionsStdio : (lspTransport === "socket") ? serverOptionsSocket : null
-		(lspTransport === "socket") ? serverOptionsSocket : (lspTransport === "stdio") ? serverOptionsStdio : null
-
+		(lspTransport === "stdio") ? serverOptionsStdio : (lspTransport === "socket") ? serverOptionsSocket : null
 	let clientOptions: LanguageClientOptions = {
 		documentSelector: [{ scheme: 'file', language: 'java' }],
 		synchronize: {

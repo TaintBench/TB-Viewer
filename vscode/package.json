@@ -3,7 +3,7 @@
 	"description": "A language server for TaintBench",
 	"author": "TaintBench",
 	"license": "EPL-2.0",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"repository": {
 		"type": "git",
 		"url": ""
@@ -83,24 +83,23 @@
 		],
 		"configuration": {
 			"type": "object",
-			"title": "TaintBench",
+			"title": "taintbench",
 			"properties": {
-				"TaintBench.trace.server": {
+				"taintbench.lspTransport": {
 					"scope": "window",
 					"type": "string",
 					"enum": [
-						"off",
-						"messages",
-						"verbose"
+						"stdio",
+						"socket"
 					],
-					"default": "off",
-					"description": "Traces the communication between VS Code and the language server."
+					"default": "socket",
+					"description": "Specifies the mode of transport used to communicate with the InferIDE language server."
 				}
 			}
 		}
 	},
 	"scripts": {
-		"vscode:prepublish": "cp ../target/TB-Viewer-0.0.2-SNAPSHOT.jar TB-Viewer-0.0.2-SNAPSHOT.jar && npm run compile",
+		"vscode:prepublish": "cp ../target/TB-Viewer-0.0.3-SNAPSHOT.jar TB-Viewer-0.0.3-SNAPSHOT.jar && npm run compile",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
 		"postinstall": "node ./node_modules/vscode/bin/install"
