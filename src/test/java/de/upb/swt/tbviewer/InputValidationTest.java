@@ -3,10 +3,9 @@ package de.upb.swt.tbviewer;
 import java.io.File;
 import java.io.IOException;
 import javax.xml.stream.XMLStreamException;
-import org.junit.Test;
 
 public class InputValidationTest {
-  @Test
+
   public void test() throws XMLStreamException, IOException {
     String fileName =
         "E:\\Git\\Github\\taintbench\\GitPod-GITHUB\\AppRepos\\backflash\\backflash_fd_result.xml";

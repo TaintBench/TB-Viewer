@@ -40,7 +40,7 @@ public class Location {
   public static Pattern createJavaMethodPattern() {
     // non capture modifier
     String group0 =
-        "(?:public|private|protected|static|final|native|synchronized|abstract|transient)";
+        "(?:public|private|protected|static|final|native|synchronized|abstract|default)";
     String group1 = "(.+)"; // return type
     String group2 = "(.+)"; // method name
     String group3 = "(.*?)"; // parameters
@@ -90,19 +90,20 @@ public class Location {
       String javaMethodName = javaMatcher.group(2);
       String javaParameterString = javaMatcher.group(3);
       // replace all types between < > for generic types
-      javaParameterString = javaParameterString.replaceAll("\\<.+\\>", "");
+      javaParameterString = javaParameterString.replaceAll("\\<[^\\>]+\\>", "");
       String[] javaParameters = javaParameterString.split(",");
 
       if (jimpleMatcher.find()) {
         String jimpleReturenType = jimpleMatcher.group(1);
         String jimpleMethodName = jimpleMatcher.group(2);
         String[] jimpleParameterTypes = jimpleMatcher.group(3).split(",");
-        if (jimpleReturenType.endsWith(javaReturnType)) {
+        if (jimpleReturenType.endsWith(javaReturnType)
+            || jimpleReturenType.equals("java.lang.Object")) {
           if (jimpleMethodName.equals(javaMethodName)) {
             if (javaParameters.length == jimpleParameterTypes.length) {
               boolean paraMatch = true;
               for (int i = 0; i < javaParameters.length; i++) {
-                String javaPara = javaParameters[i].split("\\s")[0];
+                String javaPara = javaParameters[i].trim().split("\\s")[0];
                 String jimplePara = jimpleParameterTypes[i];
                 if (javaPara.endsWith("...")) // take care of varargs
                 {

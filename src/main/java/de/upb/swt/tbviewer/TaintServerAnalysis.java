@@ -606,9 +606,13 @@ public class TaintServerAnalysis implements ServerAnalysis {
       String xmlSourceStmt,
       String xmlSinkStmt) {
     sourceJimpleStatement = sourceJimpleStatement.replaceAll("\\$r[0-9]+", "\\$rX");
+    sourceJimpleStatement = sourceJimpleStatement.replaceAll("r[0-9]+", "\\$rX");
     sinkJimpleStatement = sinkJimpleStatement.replaceAll("\\$r[0-9]+", "\\$rX");
+    sinkJimpleStatement = sinkJimpleStatement.replaceAll("r[0-9]+", "\\$rX");
     xmlSourceStmt = xmlSourceStmt.replaceAll("\\$r[0-9]+", "\\$rX");
+    xmlSourceStmt = xmlSourceStmt.replaceAll("r[0-9]+", "\\$rX");
     xmlSinkStmt = xmlSinkStmt.replaceAll("\\$r[0-9]+", "\\$rX");
+    xmlSinkStmt = xmlSinkStmt.replaceAll("r[0-9]+", "\\$rX");
     return sourceJimpleStatement.equals(xmlSourceStmt) && sinkJimpleStatement.equals(xmlSinkStmt);
   }
 

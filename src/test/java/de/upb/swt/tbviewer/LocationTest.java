@@ -1,5 +1,6 @@
 package de.upb.swt.tbviewer;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.regex.Matcher;
@@ -7,6 +8,15 @@ import java.util.regex.Pattern;
 import org.junit.Test;
 
 public class LocationTest {
+
+  @Test
+  public void test() {
+    String javaMethod =
+        "public T post(HttpPost request, String url, Map<String, String> data, Class<T> clazz)";
+    assertEquals(
+        javaMethod.replaceAll("\\<[^\\>]+\\>", ""),
+        "public T post(HttpPost request, String url, Map data, Class clazz)");
+  }
 
   @Test
   public void testPatterns() {

@@ -92,7 +92,7 @@
 						"stdio",
 						"socket"
 					],
-					"default": "socket",
+					"default": "stdio",
 					"description": "Specifies the mode of transport used to communicate with the InferIDE language server."
 				}
 			}
