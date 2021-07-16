@@ -32,6 +32,7 @@ public class Location {
   private String methodSignature;
   private String statement;
   private int linenumber;
+  private String id;
 
   private static Pattern javaMethodPattern = createJavaMethodPattern();
   private static Pattern jimpleMethodPattern = createJimpleMethodPattern();
@@ -39,7 +40,7 @@ public class Location {
   public static Pattern createJavaMethodPattern() {
     // non capture modifier
     String group0 =
-        "(?:public|private|protected|static|final|native|synchronized|abstract|transient)";
+        "(?:public|private|protected|static|final|native|synchronized|abstract|default)";
     String group1 = "(.+)"; // return type
     String group2 = "(.+)"; // method name
     String group3 = "(.*?)"; // parameters
@@ -89,19 +90,20 @@ public class Location {
       String javaMethodName = javaMatcher.group(2);
       String javaParameterString = javaMatcher.group(3);
       // replace all types between < > for generic types
-      javaParameterString = javaParameterString.replaceAll("\\<.+\\>", "");
+      javaParameterString = javaParameterString.replaceAll("\\<[^\\>]+\\>", "");
       String[] javaParameters = javaParameterString.split(",");
 
       if (jimpleMatcher.find()) {
         String jimpleReturenType = jimpleMatcher.group(1);
         String jimpleMethodName = jimpleMatcher.group(2);
         String[] jimpleParameterTypes = jimpleMatcher.group(3).split(",");
-        if (jimpleReturenType.endsWith(javaReturnType)) {
+        if (jimpleReturenType.endsWith(javaReturnType)
+            || jimpleReturenType.equals("java.lang.Object")) {
           if (jimpleMethodName.equals(javaMethodName)) {
             if (javaParameters.length == jimpleParameterTypes.length) {
               boolean paraMatch = true;
               for (int i = 0; i < javaParameters.length; i++) {
-                String javaPara = javaParameters[i].split("\\s")[0];
+                String javaPara = javaParameters[i].trim().split("\\s")[0];
                 String jimplePara = jimpleParameterTypes[i];
                 if (javaPara.endsWith("...")) // take care of varargs
                 {
@@ -132,7 +134,7 @@ public class Location {
   }
 
   public static boolean compareStatements(String javaStatement, String jimpleStatement) {
-    return false;
+    return true;
   }
 
   public Location(
@@ -149,7 +151,18 @@ public class Location {
     this.linenumber = linenumber;
   }
 
-  public static boolean maybeEqual(Location a, Location b, boolean compareStatements) {
+  public Location(String method, String statement, int linenumber, String ID) {
+    this.kind = LocationKind.Jimple;
+    this.statement = statement;
+    String[] splits = method.split(":");
+    this.classSignature = splits[0].replace("<", "").trim();
+    this.methodSignature = method.replace("<", "").replace(">", "");
+    this.linenumber = linenumber;
+    this.id = ID;
+  }
+
+  public static boolean maybeEqual(
+      Location a, Location b, boolean compareStatements, int threshold) {
     if (a.kind == b.kind) {
       return a.classSignature.equals(b.classSignature)
           && a.methodSignature.equals(b.methodSignature)
@@ -166,18 +179,28 @@ public class Location {
 
         if (aClass.equals(bClass)) {
           if (compareMethod(a.methodSignature, b.methodSignature))
-            if (a.linenumber == b.linenumber && a.linenumber != -1) {
-              return true;
+            // sometimes soot returns wrong line numbers, so we set a threshold
+            if (Math.abs(a.linenumber - b.linenumber) < threshold && a.linenumber != -1) {
+              if (!compareStatements) {
+                return true;
+              } else {
+                return compareStatements(a.statement, b.statement);
+              }
             } else {
+              if (a.linenumber != -1 && b.linenumber != -1) return false;
               if (!compareStatements) return true;
               else return compareStatements(a.statement, b.statement);
             }
         }
       } else if (a.kind.equals(LocationKind.Jimple) && b.kind.equals(LocationKind.Java)) {
-        return maybeEqual(b, a, compareStatements);
+        return maybeEqual(b, a, compareStatements, threshold);
       }
     }
     return false;
+  }
+
+  public String getID() {
+    return this.id;
   }
 
   @Override

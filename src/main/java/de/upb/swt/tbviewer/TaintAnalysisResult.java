@@ -1,7 +1,9 @@
 package de.upb.swt.tbviewer;
 
+import com.google.gson.JsonObject;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import com.ibm.wala.util.collections.Pair;
+import java.util.Optional;
 import magpiebridge.core.AnalysisResult;
 import magpiebridge.core.Kind;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -15,6 +17,7 @@ public class TaintAnalysisResult implements AnalysisResult {
   private final DiagnosticSeverity severity;
   private final Pair<Position, String> repair;
   private final String code;
+  private final Optional<JsonObject> finding;
 
   public TaintAnalysisResult(
       Kind kind,
@@ -24,6 +27,19 @@ public class TaintAnalysisResult implements AnalysisResult {
       DiagnosticSeverity severity,
       Pair<Position, String> repair,
       String code) {
+    this(Optional.empty(), kind, pos, msg, relatedInfo, severity, repair, code);
+  }
+
+  public TaintAnalysisResult(
+      Optional<JsonObject> finding,
+      Kind kind,
+      Position pos,
+      String msg,
+      Iterable<Pair<Position, String>> relatedInfo,
+      DiagnosticSeverity severity,
+      Pair<Position, String> repair,
+      String code) {
+    this.finding = finding;
     this.kind = kind;
     this.position = pos;
     this.message = msg;
@@ -78,5 +94,13 @@ public class TaintAnalysisResult implements AnalysisResult {
 
   public String code() {
     return code;
+  }
+
+  public TaintAnalysisResult copy(String msg) {
+    return new TaintAnalysisResult(kind, position, msg, related, severity, repair, code);
+  }
+
+  public Optional<JsonObject> getFinding() {
+    return this.finding;
   }
 }

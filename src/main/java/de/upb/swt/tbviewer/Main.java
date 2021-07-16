@@ -20,6 +20,7 @@ public class Main {
           ServerConfiguration config = new ServerConfiguration();
           config.setDoAnalysisByOpen(false);
           config.setDoAnalysisBySave(false);
+          config.setDoAnalysisByFirstOpen(false);
           TaintLanguageServer server = new TaintLanguageServer(config);
           String language = "java";
           IProjectService javaProjectService = new JavaProjectService();
@@ -29,7 +30,10 @@ public class Main {
           server.addAnalysis(either, language);
           return server;
         };
-    // supplier.get().launchOnStdio();
-    TaintLanguageServer.launchOnSocketPort(5007, supplier);
+    if (args.length > 0) {
+      if (args[0].equals("-debug")) TaintLanguageServer.launchOnSocketPort(5007, supplier);
+    } else {
+      supplier.get().launchOnStdio();
+    }
   }
 }
