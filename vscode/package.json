@@ -1,17 +1,19 @@
 {
 	"name": "TB-Viewer",
-	"description": "A language server for TaintBench",
-	"author": "TaintBench",
-	"license": "EPL-2.0",
+	"description": "A language server for displaying the baseline ground truth in TaintBench.",
+	"author": "Linghui Luo",
+	"license": "MIT",
 	"version": "0.0.3",
+	"homepage": "https://taintbench.github.io",
+	"bugs": "https://github.com/TaintBench/TB-Viewer/issues", 
 	"repository": {
 		"type": "git",
-		"url": ""
+		"url": "https://github.com/TaintBench/TB-Viewer"
 	},
 	"publisher": "taintbench",
-	"categories": [],
+	"categories": ["Programming Languages"],
 	"keywords": [
-		"multi-root ready"
+		"static taint analysis"
 	],
 	"engines": {
 		"vscode": "^1.30.0"

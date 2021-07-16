@@ -210,12 +210,12 @@ export class SimpleTreeDataProvider implements TreeDataProvider<TreeViewNode> {
 
 		if (seperation) {
 			if (!isDetected) {
-				summaryPositive.label = "Positive Flows: " + this.positiveFlows.length;
+				summaryPositive.label = "Expected (Positive) Flows: " + this.positiveFlows.length;
 				summaryPositive.children = this.positiveFlows;
 				summaryPositive.iconPath = path.join(__filename, '..', '..', 'media/summary.svg');
 				summaryPositive.collapsibleState = TreeItemCollapsibleState.Expanded;
 
-				summaryNegative.label = "Negative Flows: " + this.negativeFlows.length;
+				summaryNegative.label = "Unexpected (Negative) Flows: " + this.negativeFlows.length;
 				summaryNegative.children = this.negativeFlows;
 				summaryNegative.iconPath = path.join(__filename, '..', '..', 'media/summary.svg');
 				summaryNegative.collapsibleState = TreeItemCollapsibleState.Expanded;

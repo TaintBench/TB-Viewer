@@ -151,7 +151,11 @@ public class TaintServerAnalysis implements ServerAnalysis {
         ArrayList<Pair<Position, String>> relatedWithoutPath =
             new ArrayList<Pair<Position, String>>();
         JsonObject finding = findings.get(i).getAsJsonObject();
-        boolean isNegativeFlow = finding.get("isNegative").getAsBoolean();
+        boolean isNegativeFlow = false;
+        if (finding.has("isNegative")) isNegativeFlow = finding.get("isNegative").getAsBoolean();
+        else if (finding.has("isUnexpected")) {
+          isNegativeFlow = finding.get("isUnexpected").getAsBoolean();
+        }
         String ID = finding.get("ID").toString();
         StringBuilder message = new StringBuilder(ID + "P. Malicious taint flow");
         if (isNegativeFlow) message = new StringBuilder(ID + "N. Negative taint flow");
@@ -543,7 +547,6 @@ public class TaintServerAnalysis implements ServerAnalysis {
             sinkJimpleStatement = IR.get("IRstatement").getAsString();
           }
         }
-        boolean isNegativeFlow = finding.get("isNegative").getAsBoolean();
         if (sourceJimpleStatement != null && sinkJimpleStatement != null) {
           if (source.getStatement().getLinenumber() == -1
               && sink.getStatement().getLinenumber() == -1) {

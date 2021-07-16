@@ -46,8 +46,7 @@ public class InputValidation {
           if (!sink.has("methodName")) return false;
           if (!sink.has("className")) return false;
         }
-        if (!finding.has("intermediateFlows")) return false;
-        else {
+        if (finding.has("intermediateFlows")) {
           JsonArray flows = finding.getAsJsonArray("intermediateFlows");
           for (int j = 0; j < flows.size(); j++) {
             JsonObject inter = flows.get(j).getAsJsonObject();
