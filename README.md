@@ -1,4 +1,4 @@
-The TB-Viewer reads TAF-file (findings) and displays the taint flows in VS Code. This extension is created for [TaintBench](https://taintbench.github.io).
+The TB-Viewer reads TAF-file (findings) and displays the taint flows together with (decomplied) source code of an APK in VS Code. This extension is created for [TaintBench](https://taintbench.github.io).
 
 # Usage
 Watch this short [introduction video](https://www.youtube.com/watch?v=UQSHwN_aC9g&feature=youtu.be).
