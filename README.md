@@ -4,6 +4,8 @@ The TB-Viewer reads TAF-file (findings) and displays the taint flows together wi
 Watch this short [introduction video](https://www.youtube.com/watch?v=UQSHwN_aC9g&feature=youtu.be).
 
 # How to build it?
+- (first time) install AQL-System to your local .m2 repository by running `libs/install_libs.sh` (linux or mac) or `libs/install_libs.bat`
+- build jar file with `mvn install -DskipTests`
 - build jar file with `mvn install -DskipTests`
 - `cd vscode`
 - `npm install` (if the first time)
