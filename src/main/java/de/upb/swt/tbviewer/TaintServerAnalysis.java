@@ -165,6 +165,15 @@ public class TaintServerAnalysis implements ServerAnalysis {
         String sourceClassName = source.get("className").getAsString();
         String sourceMethodName = source.get("methodName").getAsString();
         URL sourceUrl = classNameToURL(sourceClassName);
+        if (sourceUrl == null) {
+          server.forwardMessageToClient(
+              new MessageParams(
+                  MessageType.Warning,
+                  "TaintBench can not find class "
+                      + sourceClassName
+                      + " in the current folder, please check if the class name is correct in the TAF-file."));
+          continue;
+        }
         String sourceStatement = source.get("statement").getAsString();
         String sourceTargetName = source.get("targetName").getAsString();
         int sourceLn = source.get("lineNo").getAsInt();
@@ -204,6 +213,15 @@ public class TaintServerAnalysis implements ServerAnalysis {
         String sinkClassName = sink.get("className").getAsString();
         String sinkMethodName = sink.get("methodName").getAsString();
         URL sinkUrl = classNameToURL(sinkClassName);
+        if (sinkUrl == null) {
+          server.forwardMessageToClient(
+              new MessageParams(
+                  MessageType.Warning,
+                  "TaintBench can not find class "
+                      + sinkClassName
+                      + " in the current folder, please check if the class name is correct in the TAF-file."));
+          continue;
+        }
         SourceCodePosition sinkPos =
             SourceCodePositionFinder.get(sinkUrl, sinkMethodName, sinkStatement);
         if (sink.has("decompiledSourceLineNo")) {
@@ -246,6 +264,15 @@ public class TaintServerAnalysis implements ServerAnalysis {
           if (flow.get("className") != null) {
             String flowClassName = flow.get("className").getAsString();
             URL flowUrl = classNameToURL(flowClassName);
+            if (flowUrl == null) {
+              server.forwardMessageToClient(
+                  new MessageParams(
+                      MessageType.Warning,
+                      "TaintBench can not find class "
+                          + flowClassName
+                          + " in the current folder, please check if the class name is correct in the TAF-file."));
+              continue;
+            }
             String flowMethodName = flow.get("methodName").getAsString();
             String flowStatement = flow.get("statement").getAsString();
             SourceCodePosition flowPos = null;
