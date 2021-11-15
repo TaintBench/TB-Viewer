@@ -10,3 +10,4 @@ vscode/TB-Viewer-0.0.2-SNAPSHOT.jar
 dependency-reduced-pom.xml
 *.iml
 .idea/
+.DS_Store
