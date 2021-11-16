@@ -6,5 +6,8 @@ vscode/node_modules/
 vscode/out
 vscode/package-lock.json
 vscode/TB-Viewer-0.0.2-SNAPSHOT.jar
-vscode/TB-Viewer-0.0.2.vsix
+*.vsix
 dependency-reduced-pom.xml
+*.iml
+.idea/
+.DS_Store

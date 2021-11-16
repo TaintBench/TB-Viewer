@@ -3,20 +3,22 @@
 	"description": "A language server for displaying the baseline ground truth in TaintBench.",
 	"author": "Linghui Luo",
 	"license": "MIT",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"homepage": "https://taintbench.github.io",
-	"bugs": "https://github.com/TaintBench/TB-Viewer/issues", 
+	"bugs": "https://github.com/TaintBench/TB-Viewer/issues",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/TaintBench/TB-Viewer"
 	},
 	"publisher": "taintbench",
-	"categories": ["Programming Languages"],
+	"categories": [
+		"Programming Languages"
+	],
 	"keywords": [
 		"static taint analysis"
 	],
 	"engines": {
-		"vscode": "^1.30.0"
+		"vscode": "^1.34.0"
 	},
 	"activationEvents": [
 		"onLanguage:java"
@@ -101,7 +103,7 @@
 		}
 	},
 	"scripts": {
-		"vscode:prepublish": "cp ../target/TB-Viewer-0.0.3-SNAPSHOT.jar TB-Viewer-0.0.3-SNAPSHOT.jar && npm run compile",
+		"vscode:prepublish": "cp ../target/TB-Viewer-0.0.4-SNAPSHOT.jar TB-Viewer-0.0.4-SNAPSHOT.jar && npm run compile",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
 		"postinstall": "node ./node_modules/vscode/bin/install"
